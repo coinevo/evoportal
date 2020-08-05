@@ -8,26 +8,26 @@ import (
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
-var app = kingpin.New("qtumportal", "QTUM DApp Server")
+var app = kingpin.New("evoportal", "EVO DApp Server")
 
-var qtumRPC = app.Flag("qtum-rpc", "URL of qtum RPC service").Envar("QTUM_RPC").Default("").String()
+var evoRPC = app.Flag("evo-rpc", "URL of evo RPC service").Envar("EVO_RPC").Default("").String()
 
 func Run() {
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 }
 
-func getQtumRPCURL() *url.URL {
-	if *qtumRPC == "" {
-		log.Fatalln("Please set QTUM_RPC to qtumd's RPC URL")
+func getEvoRPCURL() *url.URL {
+	if *evoRPC == "" {
+		log.Fatalln("Please set EVO_RPC to evod's RPC URL")
 	}
 
-	url, err := url.Parse(*qtumRPC)
+	url, err := url.Parse(*evoRPC)
 	if err != nil {
-		log.Fatalln("QTUM_RPC URL:", *qtumRPC)
+		log.Fatalln("EVO_RPC URL:", *evoRPC)
 	}
 
 	if url.User == nil {
-		log.Fatalln("QTUM_RPC URL (must specify user & password):", *qtumRPC)
+		log.Fatalln("EVO_RPC URL (must specify user & password):", *evoRPC)
 	}
 
 	return url

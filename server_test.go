@@ -16,25 +16,25 @@ import (
 var testRPCURL *url.URL
 
 func init() {
-	// qtumRPC, found := os.LookupEnv("QTUM_RPC")
+	// evoRPC, found := os.LookupEnv("EVO_RPC")
 	// if !found {
-	// 	fmt.Println("Please specify RPC url with QTUM_RPC environment variable")
+	// 	fmt.Println("Please specify RPC url with EVO_RPC environment variable")
 	// 	os.Exit(1)
 	// }
 
-	// qtumRPCURL, err := url.Parse(qtumRPC)
-	qtumRPCURL, err := url.Parse("http://howard:yeh@localhost:13889")
+	// evoRPCURL, err := url.Parse(evoRPC)
+	evoRPCURL, err := url.Parse("http://howard:yeh@localhost:31111")
 	if err != nil {
-		log.Println("Invalid QTUM_RPC", qtumRPCURL.String())
+		log.Println("Invalid EVO_RPC", evoRPCURL.String())
 	}
 
-	testRPCURL = qtumRPCURL
+	testRPCURL = evoRPCURL
 }
 
 func testServer() *Server {
 	opts := ServerOption{
 		// Port:        9999,
-		QtumdRPCURL: testRPCURL,
+		EvodRPCURL: testRPCURL,
 	}
 
 	s := NewServer(opts)

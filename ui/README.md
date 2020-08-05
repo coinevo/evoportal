@@ -1,17 +1,17 @@
 
 This hands-on tutorial will guide you through the process of developing a QTum DApp. By following along, you will:
 
-1. Run qtum's blockchain services in a docker container, in test mode.
+1. Run evo's blockchain services in a docker container, in test mode.
 1. Generate initial coins for development.
 1. Deploy a Smart Contract.
 1. Interact with Smart Contract using RPC.
-1. Interact with Smart Contract in the browser using `qtumjs`.
+1. Interact with Smart Contract in the browser using `evojs`.
 1. Live-edit a DApp using Neutrino.js.
 
 So let's get started. First, clone the repo:
 
 ```
-git clone https://github.com/hayeah/neutrino-react-ts-boilerplate.git my-project
+git clone https://github.com/coinevo/neutrino-react-ts-boilerplate.git my-project
 ```
 
 This repository provides a simple DApp UI to interact with the [Counter.sol](contracts/Counter.sol) contract:
@@ -60,7 +60,7 @@ docker run -it --rm \
   -v `pwd`:/dapp \
   -p 9899:9899 \
   -p 9888:9888 \
-  hayeah/qtumportal
+  coinevo/evoportal
 ```
 
 The container will run in the foreground. Hit `Ctrl-C` to terminate the container.
@@ -71,7 +71,7 @@ In a separate terminal, verify that the container is running:
 docker ps
 
 CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                                            NAMES
-088a9bc5b9c4        hayeah/qtumportal   "/bin/sh -c 'mkdir..."   22 minutes ago      Up 22 minutes       0.0.0.0:9888->9888/tcp, 0.0.0.0:9899->9899/tcp   myapp
+088a9bc5b9c4        coinevo/evoportal   "/bin/sh -c 'mkdir..."   22 minutes ago      Up 22 minutes       0.0.0.0:9888->9888/tcp, 0.0.0.0:9899->9899/tcp   myapp
 ```
 
 There are two exposed service ports:
@@ -142,12 +142,12 @@ settxfee amount
 signmessage "address" "message"
 ```
 
-The `qcli` command is actually a convenience wrapper for the `qtum-cli` tool:
+The `qcli` command is actually a convenience wrapper for the `evo-cli` tool:
 
 ```bash
 #!/bin/bash
 
-qtum-cli -rpcuser=$QTUM_RPC_USER -rpcpassword=$QTUM_RPC_PASS -regtest "$@"
+evo-cli -rpcuser=$EVO_RPC_USER -rpcpassword=$EVO_RPC_PASS -regtest "$@"
 ```
 
 # Generate Coins
@@ -216,7 +216,7 @@ Mostly, you'll be using two RPC calls to interact with a contract's methods:
 1. `callcontract` to invoke a method in "query" mode, using data from your local blockchain, but not making changes to it. This is free.
 2. `senttocontract` to invoke a method in "commit" mode, creating a transaction that changes the blockchain. This costs you gas.
 
-A DApp would be using `qtumjs` to make these RPC calls. Before we get to the JavaScript code, let's make these RPC calls manually.
+A DApp would be using `evojs` to make these RPC calls. Before we get to the JavaScript code, let's make these RPC calls manually.
 
 To make a method call, we'll need to encode the method name and the parameters according to the Solidity ABI specification. We can use `solar encode` to handle this for us.
 
@@ -409,18 +409,18 @@ qcli gettransactionreceipt \
 
 Now that the transaction had been confirmed, let's verify whether `getCount` returns the new counter value. Instead of using `qcli callcontract`, let's make a raw HTTP JSON request, just to see what `qcli` is doing under the hood.
 
-Within the container, the `QTUM_RPC` environment variable is already set to be the URL of the `qtumd` JSON HTTP service:
+Within the container, the `EVO_RPC` environment variable is already set to be the URL of the `evod` JSON HTTP service:
 
 ```
-echo $QTUM_RPC
+echo $EVO_RPC
 
-http://qtum:test@localhost:13889
+http://evo:test@localhost:31111
 ```
 
 Now make the raw HTTP call with curl:
 
 ```sh
-curl $QTUM_RPC -X POST -H "Content-Type: application/json" -d '
+curl $EVO_RPC -X POST -H "Content-Type: application/json" -d '
 {
   "jsonrpc": "1.0",
   "id": 1,
@@ -464,7 +464,7 @@ We can see that `output` is the latest coutner value `0x6`.
 
 # DApp RPC Security
 
-For building DApp, `qtumjs` provides a light-weight wrapper around `qtumd`'s RPC methods. However, we can't allow DApps to have unfettered access to the RPC directly. For sensitive RPC calls that may involve money, we need give the DApp user an opportunity to review the transaction made.
+For building DApp, `evojs` provides a light-weight wrapper around `evod`'s RPC methods. However, we can't allow DApps to have unfettered access to the RPC directly. For sensitive RPC calls that may involve money, we need give the DApp user an opportunity to review the transaction made.
 
 Using the authorization UI, a DApp user can see what transactions are made, and choose to deny or accept transactions.
 
@@ -474,13 +474,13 @@ The container exposes two service ports for the outside world:
 docker ps --format 'table {{.Names}} {{.Image}} {{.Ports}}'
 
 NAMES IMAGE PORTS
-myapp hayeah/qtumportal 0.0.0.0:9888->9888/tcp, 0.0.0.0:9899->9899/tcp
+myapp coinevo/evoportal 0.0.0.0:9888->9888/tcp, 0.0.0.0:9899->9899/tcp
 ```
 
 + `9899` is the authorization UI.
-+ `9888` provides RPC service to DApps, proxying authorized RPC calls to the underlying `qtumd` RPC.
++ `9888` provides RPC service to DApps, proxying authorized RPC calls to the underlying `evod` RPC.
 
-A DApp must not have direct access to the underlying `qtumd` RPC service. For this reason, the container does not expose qtumd's RPC port.
+A DApp must not have direct access to the underlying `evod` RPC service. For this reason, the container does not expose evod's RPC port.
 
 Let's verify that we have access to the RPC from outside the container. The `callcontract` is read-only, so should work without user authorization:
 
@@ -548,25 +548,25 @@ And opening the authorization UI at http://localhost:9888, you should see an RPC
 
 If the user clicks `Approve`, the client would then be able to make the same `sendtocontract` call again, and succeed.
 
-> For details of how RPC authorization works, see [QTUM Portal Authorization Design](https://github.com/hayeah/qtum-portal/blob/master/DESIGN.md). `qtumjs` handles authorization transparently, so you don't need to think about this in practice.
+> For details of how RPC authorization works, see [EVO Portal Authorization Design](https://github.com/coinevo/evo-portal/blob/master/DESIGN.md). `evojs` handles authorization transparently, so you don't need to think about this in practice.
 
 # Developing The DApp UI
 
 A DApp is essentially a UI wrapper for accessing a set of smart contracts' methods.
 
-In [solar.development.json](https://github.com/hayeah/qtum-dapp-counter/blob/master/solar.development.json.example) there is information about the deployed contracts, which qtumjs can use to `call` or `send` to a contract.
+In [solar.development.json](https://github.com/coinevo/evo-dapp-counter/blob/master/solar.development.json.example) there is information about the deployed contracts, which evojs can use to `call` or `send` to a contract.
 
 We can access a contract by initializing a `Contract` object:
 
 ```js
-// QTUM_RPC is the RPC URL
-const rpc = new QtumRPC(QTUM_RPC)
+// EVO_RPC is the RPC URL
+const rpc = new EvoRPC(EVO_RPC)
 
 // CONTRACTS is the JSON object in solar.development.json
 const counter = new Contract(rpc, CONTRACTS.counter)
 ```
 
-These two constants are defined in [config/development.js](https://github.com/hayeah/qtum-dapp-counter/blob/master/config/development.js).
+These two constants are defined in [config/development.js](https://github.com/coinevo/evo-dapp-counter/blob/master/config/development.js).
 
 A `Contract` instance provides the `call` and `send` methods. The first argument is the method name, and the second argument an array of parameter values for the method call:
 
@@ -578,7 +578,7 @@ const r = await counter.send("increment", [n])
 // r.logs is the method's emitted log events
 ```
 
-See [api.ts](https://github.com/hayeah/qtum-dapp-counter/blob/master/src/api.ts) for an example of building a simple API wrapper.
+See [api.ts](https://github.com/coinevo/evo-dapp-counter/blob/master/src/api.ts) for an example of building a simple API wrapper.
 
 
 # The DApp Dev Server
@@ -602,7 +602,7 @@ See: [YouTube Demo Video](https://youtu.be/zLUE5m6ccqk)
 
 For styling, edit `src/index.css`.
 
-Edit the [html](https://github.com/hayeah/neutrino-react-ts-boilerplate/blob/727d23b260935edd7a3b2c56d8e05ef616cec31c/.neutrinorc.js#L10) options to customize the HTML template. See [html-webpack-template](https://github.com/jaketrent/html-webpack-template/tree/624dd3931cc2ffaeed03962b25c61af81c2997e2#basic-usage).
+Edit the [html](https://github.com/coinevo/neutrino-react-ts-boilerplate/blob/727d23b260935edd7a3b2c56d8e05ef616cec31c/.neutrinorc.js#L10) options to customize the HTML template. See [html-webpack-template](https://github.com/jaketrent/html-webpack-template/tree/624dd3931cc2ffaeed03962b25c61af81c2997e2#basic-usage).
 
 # Other Tips
 

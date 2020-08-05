@@ -15,5 +15,5 @@ authuiui-assets:
 	go-bindata -o assets/authui/assets.go -pkg authui -prefix ui/build ui/build
 
 cli:
-	GOOS=darwin go build -o build/qtumportal-mac github.com/hayeah/qtum-portal/cli/qtumportal
-	GOOS=linux go build -o build/qtumportal-linux github.com/hayeah/qtum-portal/cli/qtumportal
+	GOOS=darwin go build -o build/evoportal-mac github.com/coinevo/evo-portal/cli/evoportal
+	GOOS=linux go build -o build/evoportal-linux github.com/coinevo/evo-portal/cli/evoportal

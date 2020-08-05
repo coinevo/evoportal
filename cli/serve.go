@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/hayeah/qtum-portal"
+	"github.com/coinevo/evo-portal"
 
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -32,7 +32,7 @@ func init() {
 			AuthPort:      *authPort,
 			StaticBaseDir: staticDir,
 
-			QtumdRPCURL: getQtumRPCURL(),
+			EvodRPCURL: getEvoRPCURL(),
 			DebugMode:   *devMode,
 		}
 
